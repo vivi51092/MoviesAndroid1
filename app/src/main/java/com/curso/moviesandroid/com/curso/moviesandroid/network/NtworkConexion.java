@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.curso.moviesandroid.R;
+import com.curso.moviesandroid.listener.NetworkConecctionInterface;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,8 +26,10 @@ public class NtworkConexion  extends AsyncTask<Void, Void, Boolean>{
     private final String TAG =NtworkConexion.class.getSimpleName();
     private Context context;
     private String responseSTR;
-    public NtworkConexion(Context context){
+    private NetworkConecctionInterface listener;
+    public NtworkConexion(Context context, NetworkConecctionInterface network){
         this.context = context;
+        this.listener = network;
     }
 
     @Override
@@ -35,6 +38,7 @@ public class NtworkConexion  extends AsyncTask<Void, Void, Boolean>{
         final String BASE_URL = "http://api.themoviedb.org/3/movie";
         final String POPULAR_PATH = "popular";
         final String API_KEY_PARAM ="api_key";
+
         //Construccion de URL
         Uri uri1 = Uri.parse(BASE_URL).buildUpon().appendPath(POPULAR_PATH).appendQueryParameter(API_KEY_PARAM,context.getString(R.string.api_key_value)).build();
         HttpURLConnection urlConnection ;
@@ -80,4 +84,18 @@ public class NtworkConexion  extends AsyncTask<Void, Void, Boolean>{
             return false;
         }
     }
+
+    @Override
+    protected void onPostExecute(Boolean result) {
+        if(result){
+            if(listener != null){
+                listener.OnsubsuccesfullyResponse(responseSTR);
+            }
+        }else{
+            if(listener !=null){
+                listener.OnfailedResponse();
+            }
+        }
+    }
+
 }
